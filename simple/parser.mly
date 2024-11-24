@@ -23,18 +23,18 @@ open Expr
 /* A type */
 ty:
   | IDENT     { TVar $1 }
-  | ty IMP ty { Imp ($1, $3) }
-  | ty AND ty { And ($1, $3) }
-  | ty OR ty  { Or ($1, $3) }
-  | NOT ty    { Imp ($2, False) }
-  | TRUE      { True }
-  | FALSE     { False }
+  | ty IMP ty { Arr ($1, $3) }
+  | ty AND ty { Conj ($1, $3) }
+  | ty OR ty  { Coprod ($1, $3) }
+  | NOT ty    { Arr ($2, Zero) }
+  | TRUE      { TTruth }
+  | FALSE     { Zero }
 
 /* A term */
 tm:
   | atm                                    { $1 }
   | FUN LPAR IDENT COLON ty RPAR TO tm     { Abs ($3, $5, $8) }
-  | CASE tm OF IDENT TO tm BAR IDENT TO tm { Case ($2, $4, $6, $8, $10) }
+  | CASE tm OF IDENT TO tm BAR IDENT TO tm { Case ($2, Abs($4, $6), Abs($8, $10)) }
 
 /* An application */
 atm:
