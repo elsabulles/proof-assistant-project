@@ -9,7 +9,7 @@ type var = string
 
 A simple type is either a type variable or an implication between simple types. Define a type ty for simple types. *)
 type ty =
-| TVar of tvar |Arr of ty*ty 
+|TVar of tvar |Arr of ty*ty 
 |Conj of ty*ty
 |TTruth
 |Coprod of ty*ty
@@ -26,5 +26,5 @@ type tm =
 | Abs of var*ty*tm 
 | Pair of tm*tm | Fst of tm | Snd of tm
 | True
-| InjLeft of ty*tm | InjRight of ty*tm | Case of tm*tm*tm (*Mais on veut les 2 derniers tm de type abs ?*)
-| Case_type of tm 
+| InjLeft of ty*tm | InjRight of ty*tm | Case of tm*var*tm*var*tm (*Mais on veut les 2 derniers tm de type abs ?*)
+| Case_type of tm*ty (*create a function from false to any type*)

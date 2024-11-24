@@ -1,0 +1,5 @@
+not T => _
+intro t
+cut t
+exact t
+truth_intro

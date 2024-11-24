@@ -1,0 +1,12 @@
+(A => B => C) => (A => B) => A => C
+intro f
+intro g
+intro x
+cut B
+elim f
+exact x
+elim g
+exact x
+
+Proof term is
+(fun : f : ( A => ( B => C ) ) -> (fun : g : ( A => B ) -> (fun : x : A -> ( ( f x ) ( g x ) ) ) ) )

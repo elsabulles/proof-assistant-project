@@ -1,0 +1,12 @@
+(A /\ B => C) => A => B => C
+intro f
+intro a 
+intro b 
+cut (A ∧ B)
+exact f
+intro 
+exact a
+exact B
+
+Proof term is
+(fun : f : ( ( A ∧  B ) => C ) -> (fun : a : A -> (fun : b : B -> ( f ( a , b ) ) ) ) )

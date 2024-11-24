@@ -1,0 +1,8 @@
+ A => A /\ A
+ intro x
+ intro
+ exact x
+ exact x
+
+ Proof term is
+(fun : x : A -> ( x , x ))

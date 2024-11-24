@@ -1,0 +1,6 @@
+(T => A) => A
+intro t 
+elim t 
+truth_intro
+
+(fun : t : ( T => A ) -> ( t True ) )

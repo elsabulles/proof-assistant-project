@@ -1,0 +1,8 @@
+((A => A) => B) => B
+intro f
+elim f
+intro x
+exact x
+
+Proof term is
+(fun : f : ( ( A => A ) => B ) -> ( f (fun : x : A -> x ) ) )

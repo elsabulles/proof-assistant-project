@@ -1,0 +1,7 @@
+A /\ B => B /\ A
+intro x
+intro
+snd x
+
+Proof term is
+(fun : x : ( A ∧  B ) -> ( (snd (x) ) , (fst (x) ) ) )

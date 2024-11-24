@@ -1,0 +1,7 @@
+A => T
+
+intro x
+truth_intro
+
+Proof term is
+(fun : x : A -> True )

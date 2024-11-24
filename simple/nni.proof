@@ -1,0 +1,5 @@
+A => not (not A)
+intro a
+intro f 
+elim f
+exact a
