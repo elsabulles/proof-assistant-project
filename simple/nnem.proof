@@ -1,0 +1,11 @@
+not (not (A \/ not A))
+intro f
+cut ( A => _ ) 
+intro a
+elim f
+right a
+exact a
+intro a2
+elim f
+left a2
+exact a2

@@ -1,7 +1,7 @@
 %{
 open Expr
 %}
-
+%token NAT SUCC REC NULL
 %token IMP AND OR TRUE FALSE NOT
 %token FUN TO CASE OF
 %token LPAR RPAR COLON COMMA BAR
@@ -29,13 +29,15 @@ ty:
   | NOT ty    { Arr ($2, Zero) }
   | TRUE      { TTruth }
   | FALSE     { Zero }
-  | LPAR ty RPAR {$2}      
+  | LPAR ty RPAR {$2} 
+  | NAT { Nat }   
 
 /* A term */
 tm:
   | atm                                    { $1 }
   | FUN LPAR IDENT COLON ty RPAR TO tm     { Abs ($3, $5, $8) }
   | CASE tm OF IDENT TO tm BAR IDENT TO tm { Case ($2, $4, $6, $8, $10) }
+  | REC tm tm IDENT tm                       { Rec ($2, $3, $4, $5) }
 
 /* An application */
 atm:
@@ -53,3 +55,5 @@ stm:
   | LEFT LPAR tm COMMA ty RPAR   { InjLeft ($5, $3) }
   | RIGHT LPAR ty COMMA tm RPAR  { InjRight ($3, $5) }
   | ABSURD LPAR tm COMMA ty RPAR { Case_type ($3, $5) }
+  | SUCC LPAR tm RPAR            { Succ ($3) }
+  | NULL                         { Nul }

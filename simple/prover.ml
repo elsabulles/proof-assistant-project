@@ -22,6 +22,7 @@ let rec string_of_ty some_type =
   | TTruth -> "T"
   | Coprod(ty1,ty2) -> "( "^(string_of_ty ty1)^" ∨  "^(string_of_ty ty2)^" )"
   | Zero -> "_"
+  | Nat -> "Nat"
 
 let rec string_of_tm some_term = 
   match some_term with 
@@ -36,7 +37,9 @@ let rec string_of_tm some_term =
   |InjRight(ty1,tm1) -> "(injright_"^(string_of_ty ty1)^" ( "^(string_of_tm tm1)^" ) )"
   |Case(tm0,varl,tml,varr,tmr) -> "(case ("^(string_of_tm tm0)^") : ( "^varl^" →  "^(string_of_tm tml)^" , "^varr^" → "^(string_of_tm tmr)^") "
   |Case_type(tm1,typ)-> "(case ("^(string_of_tm tm1)^") → "^(string_of_ty typ)^" )"
-
+  |Nul -> "O"
+  |Succ(tm1) -> "(succ ("^(string_of_tm tm1)^") )"
+  |Rec(tm1,tm2,v,tm3) -> "(rec ("^(string_of_tm tm1)^" , "^(string_of_tm tm2)^" , "^v^" → "^(string_of_tm tm3)^"( "^string_of_tm tm1^") )"
 (*tests?*)
 
 (* 1.4 Type inference *) (* --> to 1.6 Type inference and checking together *)
@@ -70,7 +73,12 @@ let rec infer_type env t =
   | InjLeft(typ,t1) -> let a = infer_type env t1 in Coprod(a,typ)
   | InjRight(typ,t1) -> let b = infer_type env t1 in Coprod(typ,b)
   | Case_type(trm,typ) -> (if infer_type env trm == Zero then typ else raise Type_error) (*?should not happen??*)
-
+  | Nul -> Nat
+  | Succ(trm) -> (if infer_type env trm == Nat then Nat else raise Type_error)
+  | Rec(trm1, trm2, v, trm3) -> (if (infer_type env trm1) == Nat then
+    let a = infer_type env trm2 in
+    check_type (("pred" , Nat)::(v , a)::env) trm3 a; a
+  else raise Type_error)
 and check_type env tm a = 
   let t = infer_type env tm in if (t <> a) then raise Type_error 
   
@@ -80,7 +88,7 @@ and check_type env tm a =
  in print_endline (string_of_ty (infer_type [] just_a)) *)
 
 (* check_type [] just_a (Arr(TVar "B", TVar "B"));  *)
-(* check_type [] just_a (TVar "a") *)
+(* check_type [] just_a (TVar "A") *)
 
     (* 1.7 Other connectives *)
     (* 1.8 Conjunction *)
@@ -204,6 +212,8 @@ let rec prove (env:(var*ty) list) a =
           let t1 = prove env a in
           let t2 = prove env b in
           Pair (t1, t2)
+        | Nat -> if arg = "zero" then Nul else if arg = "succ" then
+          Succ (prove env Nat) else error "Don't know how to introduce this."
        | _ -> error "Don't know how to introduce this."
      )
   | "exact" ->
@@ -221,6 +231,10 @@ let rec prove (env:(var*ty) list) a =
       t1 = prove (("fA",tyA)::env) a and t2 = prove (("fB",tyB)::env) a in
       Case(f , "fA", t1 , "fB", t2) )
       | Zero -> Case_type(f,a)
+      | Nat -> 
+        let t1 = (print_endline ("base case"); prove env a) (*you will have to introduce zero*)
+      and t2 = (print_endline ("inductive case"); prove (("pred", Nat)::("imagepred", a)::env) a) in
+      Rec(f,t1,"imagepred",t2) (*problem : when checking we need pred*)
       | _ -> error "Not the right type.") 
   | "cut" -> 
     (let b = ty_of_string arg in
@@ -277,3 +291,7 @@ appid.proof: ((A => A) => B) => B *)
 
 (* Proof term is
 (fun : f : ( A => ( B => C ) ) -> (fun : g : ( A => B ) -> (fun : x : A -> ( ( f x ) ( g x ) ) *)
+
+(*checktype for Nat*)
+let () = check_type [] (Rec(Nul, Nul, "a", Succ(Nul))) Nat
+

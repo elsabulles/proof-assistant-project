@@ -1,0 +1,7 @@
+Nat => Nat => Nat
+intro x
+intro y
+elim x
+exact y
+intro succ
+exact imagepred

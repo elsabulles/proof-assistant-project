@@ -14,6 +14,7 @@ type ty =
 |TTruth
 |Coprod of ty*ty
 |Zero
+|Nat
 
 (* 1.2 λ-terms
 
@@ -28,3 +29,5 @@ type tm =
 | True
 | InjLeft of ty*tm | InjRight of ty*tm | Case of tm*var*tm*var*tm (*Mais on veut les 2 derniers tm de type abs ?*)
 | Case_type of tm*ty (*create a function from false to any type*)
+| Nul | Succ of tm | Rec of tm*tm*var*tm (*Rec(a,b,v,c) = b if a=0 and c where we add a otherwise ? We will see...*)
+  (*rec(t,)*)
