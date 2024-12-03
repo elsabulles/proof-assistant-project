@@ -1,6 +1,6 @@
 ---
 title: Report for the _proof assistant project_
-author: Fill you name
+author: Elsa Lubek
 ---
 
 This is an example for the report in _Markdown_ format, which is a text format that can be converted to anything including pdf. I am fine with any other tool to produce the pdf though (Word, LaTeX, etc.). You can see the syntax at <https://pandoc.org/MANUAL.html>.
