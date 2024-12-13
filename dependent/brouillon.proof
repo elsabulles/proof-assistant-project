@@ -62,3 +62,5 @@ define addcommnk = Ind (pcomm n) (zadd n) (succaddcomm n) k
 
 define s1mult = fun (n : Nat) -> fun (hr : mult one n = n) -> trans Nat (mult one (S k)) (S (mult one k))
 define 1mult = fun (n : Nat) -> Ind p1mult Refl(Z) () n
+
+

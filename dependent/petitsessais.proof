@@ -1,7 +1,0 @@
-define essais = fun (x : Nat) -> fun (y : Nat) -> fun (z : Nat) -> Pi (e : x = y) -> x = z
-assume x : Nat
-
-check trans = Pi (A : Type) -> Pi (x : A) -> Pi (y : A) -> Pi (z : A) -> Pi (xey : x=y) -> Pi (yez : y=z) -> x=z
-
-assume (e1 : )
-define addcomm = fun (n : Nat) -> fun (k : Nat) -> Ind (pcomm n) (zadd n) (succaddcomm n) k

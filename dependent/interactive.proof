@@ -61,3 +61,10 @@ define plusissuc = fun (m : Nat) -> trans Nat (add one m) (S (add Z m)) (S m) (s
 define s1mult = fun (k : Nat) -> fun (hr : mult one k = k) -> trans Nat (mult one (S k)) (S (mult one k)) (S k) (plusissuc (mult one k)) (congsuc (mult one k) k hr)
 define 1mult = fun (n : Nat) -> Ind p1mult Refl(Z) s1mult n
 check 1mult = Pi (n : Nat) -> mult one n = n
+
+define pzeromult = fun (n : Nat) -> mult Z n = Z
+define pmultzero = fun (n : Nat) -> mult n Z = Z
+define zeromult = fun (n : Nat) -> Ind pzeromult Refl(Z) (fun (n : Nat) -> fun (hr : mult Z n = Z) -> trans Nat (mult Z (S n)) (mult Z n) Z (zadd (mult Z n)) hr) n
+check zeromult = Pi (n : Nat) -> mult Z n = Z
+define multzero = fun (n : Nat) -> Refl Z
+check multzero = Pi (n : Nat) -> mult n Z = Z
