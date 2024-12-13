@@ -42,11 +42,11 @@ let rec subst x t u =
   else Abs (f , (subst x t u1), (subst x t (subst y (Var f) u2)))(*problem if y is not free in t*)
   | Pi (y, u1, u2) -> let f = fresh_var () in 
   if x = y then Pi (f, subst x t u1, subst y (Var f) u2) (*not necessary, is it ?*)
-  else Pi (f, subst x t (subst y (Var f) u1), subst x t (subst y (Var f) u2)) (*check again for the pb of FV...*)
+  else Pi (f, subst x t (subst y (Var f) u1), subst x t (subst y (Var f) u2)) 
   | Nat -> Nat
   | Z -> Z
   | S e -> S (subst x t e)
-  | Ind (e1,e2,e3,e4) -> Ind (subst x t e1, subst x t e2, subst x t e3, subst x t e4) (*for now I think it is good*)
+  | Ind (e1,e2,e3,e4) -> Ind (subst x t e1, subst x t e2, subst x t e3, subst x t e4) 
   | Eq (e1, e2) -> Eq (subst x t e1, subst x t e2)
   | Refl e -> Refl (subst x t e)
   | J (e1, e2, e3, e4, e5) -> J (subst x t e1, subst x t e2, subst x t e3, subst x t e4, subst x t e5)
@@ -86,7 +86,6 @@ let rec normalize ctx e =
              with |Not_found -> failwith (x^" is not defined in"^string_of_context(ctx)))
   | App (u1, u2) -> 
    (match (normalize ctx u1),(normalize ctx u2) with
-   (*in comments th eprevious version*)
    (*I try adding the value only if it is relevant in order to avoid loopings*)
     | Abs (x, a, b), Var v -> subst x (Var v) (normalize ((x, (a,None))::ctx) b) 
     | Pi (x, a, b), Var v -> subst x (Var v) (normalize ((x, (a,None))::ctx) b) 
@@ -99,7 +98,6 @@ let rec normalize ctx e =
   | Z -> Z
   | Abs (x, a, b) -> Abs (x, normalize ctx a, normalize ((x,(a,None))::ctx) b)
   | S (ex) -> S (normalize ctx ex)
-  (*maybe I should reconsider normalisation*)
   | Ind (p,z,s,u) -> (match (normalize ctx u) with
       | Z -> z
       | S (n) -> normalize ctx (App( App( s, n) , (Ind (p, z, s, n))))
@@ -144,40 +142,33 @@ let conv ctx t1 t2 =
 exception Type_error of string
 
 (* infers the type of e in the context ctx *)
-(*But we need to check that the context is*)
-(*corresponds to elimination ?*)
 let rec infer ctx e = match e with
 | Type -> Type (*REALLY ?*)
 | Var v -> (try (fst (List.assoc v ctx)) with | Not_found -> raise (Type_error ("v is not defined in"^str_beginning_context(ctx))))
 | App (e1, e2) -> (match (infer ctx e1) with 
-            | Pi(v,x,y) -> check ctx e2 x; subst v e2 y (*is normalization necessary ?*)
+            | Pi(v,x,y) -> check ctx e2 x; subst v e2 y 
             | _ -> match (normalize ctx e1) with 
               | Pi(x,a,b) -> check ctx e2 a; subst x e2 b 
-            (* infer ((v,(x,Some e2))::ctx) y *)
-           (*what if e1 was a pi ?*)
-              | other -> raise(Type_error(to_string(other)^" is not a function type when inferring the type")) ) (*should we change the context ?*)
+              | other -> raise(Type_error(to_string(other)^" is not a function type when inferring the type")) ) 
 | Abs (x,a,t) -> check ctx a Type; Pi (x,a,infer ((x, (a,None))::ctx) t)
 | Pi (x, a, b) -> check ctx a Type; check ((x, (a,None))::ctx) b Type; Type
 | Nat -> Type
 | Z -> Nat
 | S(e) -> (try (check ctx e Nat) with |_ -> raise (Type_error("Successor should take an int"))); Nat
-(* | Ind (t,xA,u,xyv) -> check ctx t Nat; let x = fresh_var and y = fresh_var in
- let a = infer ((x , (Nat, None))::ctx) (App(xA, Var x)) in let typ_v = infer ((y , (a, None))::(x , (Nat, None))::ctx) (App (App(xyv, Var x) , Var y)) in
- check u (subst x Z a); check typ_v  *)
- | Ind (p, z, s, m) -> (check ctx z (App(p, Z)); print_endline("base case well typed");
+ | Ind (p, z, s, m) -> (check ctx z (App(p, Z)); (*print_endline("base case well typed");*)
  (* then (raise (Type_error"base case is not of a type p Z")) else (  if there is no mistake p is of type Nat => Type ? *)
   match infer ctx s with 
     | Pi (n, Nat, f) -> (*let's try*) print_endline(to_string(f)^" is f");
     let fresh_n = fresh_var () in
-    let pn = normalize ((fresh_n , (Nat, None))::ctx) (App(p,Var fresh_n))in print_endline(to_string(pn)^" is the type of p n");
-    let pSn = normalize ((fresh_n , (Nat, None))::ctx) (App(p, S (Var fresh_n))) in print_endline(to_string(pSn)^" is the type of p (S n) ");
-    if (conv ((fresh_n , (Nat, None))::ctx) (subst n (Var fresh_n) f) (Pi("x", pn, pSn))) then (
-      print_endline(to_string(f)^" is of good type...");
+    let pn = normalize ((fresh_n , (Nat, None))::ctx) (App(p,Var fresh_n)) in (*print_endline(to_string(pn)^" is the type of p n");*)
+    let pSn = normalize ((fresh_n , (Nat, None))::ctx) (App(p, S (Var fresh_n))) in (*print_endline(to_string(pSn)^" is the type of p (S n) ");*)
+    if (conv ((fresh_n , (Nat, None))::ctx) (subst n (Var fresh_n) f) (Pi("x", pn, pSn))) then 
+      (
+      (*print_endline(to_string(f)^" is of good type...");*)
     (*the problem here is that I need to add n of type nat to f but not to p. So I cannot use conv which requires the same *)
-    (check ctx m Nat; normalize ctx (App(p,m))) (*should we normalize ?*)
+    (check ctx m Nat; normalize ctx (App(p,m))) (*normalize is not necessary*)
      )
      else raise(Type_error(to_string(s)^"is not a function")); 
-  (*i'm not sure about the "x" part*)
     | _ -> raise (Type_error("Your recursor is not well typed")) 
  ) 
  | Refl(t) -> let t' = normalize ctx t in Eq (t',t') (*I don't think I have to normalize now*)
@@ -185,11 +176,11 @@ let rec infer ctx e = match e with
  | J (p,r,x,y,eg) -> (
   (*define A*) let a = infer ctx x in
   check ctx y a;
-  check ctx eg (Eq(x,y)); (*should I normalize ? or check does it?*)
-  let fx, fy, fz = fresh_var (), fresh_var (), fresh_var () in  (*A CHANGER APRES*)
-  check ctx p (Pi(fx,a,Pi(fy,a,Pi(fz,Eq (Var fx,Var fy),Type)))); (*pb...?*)
+  check ctx eg (Eq(x,y)); (*check normalizes itself Eq(x,y)*)
+  let fx, fy, fz = fresh_var (), fresh_var (), fresh_var () in  
+  check ctx p (Pi(fx,a,Pi(fy,a,Pi(fz,Eq (Var fx,Var fy),Type))));
   check ctx r (Pi(fx,a,App(App(App(p,Var fx),Var fx),Refl (Var fx))));
-  normalize ctx (App(App(App(p,x),y),eg)) (*I TRY NORMALIZING*)
+  normalize ctx (App(App(App(p,x),y),eg)) (*normalizing is maybe not necessary*)
  )
 
 (*use conv*)

@@ -43,10 +43,6 @@ you have words in _italic_ or in **bold**.
 
 ## Dependent types
 
-...
-
-Now let's use the prover.
-By definition of the base case : add x Z = x so addz should be easier to implement.
 
 
 # Difficulties encountered
@@ -91,14 +87,9 @@ If I changed n to m in zadd, I also had an infinite loop, but changing n to m in
 I fixed the problem by introducing a new variable fresh_n
 
 Show that addition is associative and commutative :
-I want to produce : zass = Pi (n m n : Nat) -> add (add m n) k = add (m add (n k))
-Pi (m : Nat) -> Pi (n : Nat) -> Pi (k : Nat) -> add (add m n) k = add (m add (n k))
 
 je me suis aperçue qu'il est parfois important de choisir un ordre judicieux sur les arguments. Par exemple dans cong, de prendre l'argument f avant x et y.
 
-Pour le calcul de mult : par ma définition n*1=n
-
-J'ai ensuite montré 1*n=n
 j'oublie souvent les "fun"
 
 La plupart de mes problèmes viennent de quand j'utilise des fonctions/variables qui n'existent pas.

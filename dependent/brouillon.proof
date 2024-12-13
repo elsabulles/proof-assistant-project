@@ -3,7 +3,7 @@ Brouillon
 define scom = fun (k : Nat) -> (fun (n : Nat) -> ( fun (e : (add k n) = (add n k) ) -> (J (fun (x1 : Nat) -> (fun (x2 : Nat) -> (fun (eq : x1=y2) -> ( (add (S k) n) = (S x1)) ))) (psuccomm k n) (add k n) (add n k) e )))
 define addcomm = (fun (l : Nat) -> (fun (n : Nat) -> ( Ind (pcomm (zadd l) (scom l) n))))
 
-cat dnat.proof | dune exec ./prover.exe
+cat appid.proof | dune exec ./prover.exe
 cat petitsessais.proof | dune exec ./prover.exe
 
 define scom = fun (k : Nat) -> fun (n : Nat) -> fun (e : (add k n) = (add n k) ) -> J (fun (x1 : Nat) -> fun (x2 : Nat) -> fun (eq : x1 = x2) -> (add (S k) n) = (S x1)) (psuccomm k n) (add k n) (add n k) e 
