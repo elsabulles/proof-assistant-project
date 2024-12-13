@@ -1,0 +1,63 @@
+define s = fun (n : Nat) -> (fun (pr : Nat) -> n)
+define p = fun (m : Nat) -> Nat
+define pred = fun (m : Nat) -> (Ind p Z s m)
+eval pred (S (S (S Z)))
+
+define sucresult = fun (n : Nat) -> (fun (res : Nat) -> S (res))
+define add = fun (x : Nat) -> (fun (y : Nat) -> (Ind p x sucresult y))
+eval add (S (S (S Z))) (S (S Z))
+
+define r = fun (x : Nat) -> Refl (S x)
+define p = fun (x : Nat) -> (fun (y : Nat) -> ( fun (eq : x = y) -> ((S x) = (S y))))
+define Seq = fun (x : Nat) -> (fun (y : Nat) -> ( fun (e : x = y) -> (J p r x y e) ))
+check Seq = Pi (x : Nat) -> Pi (y : Nat) -> Pi (e : x = y) -> S x = S y
+
+define addz = fun (n : Nat) -> Refl (add n Z)
+check addz = Pi (n : Nat) -> add n Z = n
+
+define pzadd = fun (n : Nat) -> (add Z n = n)
+define szadd = fun (n : Nat) -> ( fun (znz : (add Z n = n)) -> (Seq (add Z n) n znz))
+define zadd = fun (n : Nat) -> (Ind pzadd Refl(Z) szadd n)
+check zadd = Pi (n : Nat) -> add Z n = n
+
+define paddass = fun (m : Nat) -> (fun (n : Nat) -> (fun (k : Nat) -> ( (add (add m n) k) = (add m (add n k)) )))
+define saddassmn = fun (m : Nat) -> ( fun (n : Nat) -> (fun (k : Nat) -> ( fun (hr : (add (add m n) k) = (add m (add n k))) -> (Seq (add (add m n) k) (add m (add n k)) hr) )))
+define addass = fun (m : Nat) -> (fun (n : Nat) -> (fun (k : Nat) -> ( Ind (paddass m n) Refl(add m n) (saddassmn m n) k)))
+check addass = Pi (m : Nat) -> Pi (n : Nat) -> Pi( k : Nat) ->  ((add (add m n) k) = (add m (add n k)))
+
+define psuccomm = (fun (l : Nat) -> (fun (n : Nat) -> ( (add S(l) n) = S (add l n) )))
+define ssuccom = (fun (l : Nat) -> (fun (n : Nat) -> ( fun (hr : (add S(l) n) = S (add l n)) -> (Seq (add S(l) n) (S(add l n))) hr )))
+define succomm = (fun (l : Nat) -> (fun (n : Nat) -> ( Ind (psuccomm l) Refl(S(l)) (ssuccom l) n)))
+check succomm = Pi (l : Nat) -> Pi (n : Nat) -> ( (add S(l) n) = S (add l n) )
+
+define psym = fun (A : Type) -> fun (x : A) -> fun (y : A) -> fun (e : x=y) -> y=x
+define sym = fun (A : Type) ->  (fun (x : A) -> (fun (y : A) -> (fun (e : x=y) -> (J (psym A) (fun (x : A) -> Refl(x)) x y e))))
+define pcong = fun (A : Type) -> fun (B : Type) -> fun (f : Pi (x : A) -> B) -> fun (x : A) -> fun (y : A) -> fun (e : x=y) -> (f x)=(f y)
+define cong = fun (A : Type) -> fun (B : Type) -> fun (f : Pi (x : A) -> B) -> fun (x : A) -> fun (y : A)  -> fun (e : x=y) -> J (pcong A B f) (fun (x : A) -> Refl(f x)) x y e
+define congsuc = cong Nat Nat (fun (x : Nat) -> (S x))
+check congsuc = Pi (x : Nat) -> Pi (y : Nat) -> Pi ( e : x=y ) -> S x = S y
+
+define ptrans = fun (A : Type)  -> fun (z : A) -> fun (x : A) -> fun (y : A) -> fun (xey : x=y)  -> Pi (yez : y=z) -> x=z
+define trans = fun (A : Type) -> fun (x : A) -> fun (y : A) -> fun (z : A) -> fun (xey : x=y) -> J (ptrans A z) (fun (x : A) -> fun (xez : x=z) -> xez) x y xey
+check trans = Pi (A : Type) -> Pi (x : A) -> Pi (y : A) -> Pi (z : A) -> Pi (xey : x=y) -> Pi (yez : y=z) -> x=z
+
+define pcomm = fun (n : Nat) -> (fun (k : Nat) -> ( (add k n) = (add n k) ))
+
+define succaddcomm = fun (n : Nat) -> fun (k : Nat) -> fun (e : (add k n) = (add n k)) -> (trans Nat (add (S k) n) (S (add k n)) (S (add n k)) (succomm k n) (congsuc (add k n) (add n k) e) )
+
+define addcomm = fun (n : Nat) -> fun (k : Nat) -> Ind (pcomm n) (zadd n) (succaddcomm n) k
+check addcomm = Pi (n : Nat) -> Pi (k : Nat) -> ( (add k n) = (add n k) )
+
+define mult = fun (n : Nat) -> fun (k : Nat) -> Ind (fun (k:Nat) -> Nat) Z (fun (k : Nat) -> fun (nk : Nat) -> (add n nk)) k 
+eval mult (S S Z) (S S S Z) 
+
+define one = S Z
+
+define mult1 = fun (n : Nat) -> Refl(mult n one)
+check mult1 = Pi (n : Nat) -> mult n one = n
+
+define p1mult = fun (n : Nat) -> mult one n = n
+define plusissuc = fun (m : Nat) -> trans Nat (add one m) (S (add Z m)) (S m) (succomm Z m) (congsuc (add Z m) m (zadd m))
+define s1mult = fun (k : Nat) -> fun (hr : mult one k = k) -> trans Nat (mult one (S k)) (S (mult one k)) (S k) (plusissuc (mult one k)) (congsuc (mult one k) k hr)
+define 1mult = fun (n : Nat) -> Ind p1mult Refl(Z) s1mult n
+check 1mult = Pi (n : Nat) -> mult one n = n
