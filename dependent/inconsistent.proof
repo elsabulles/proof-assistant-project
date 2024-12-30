@@ -2,5 +2,3 @@ assume false : Type
 define typetofalse = Pi (x : Type) -> false
 define omega = fun (x : Type) -> typetofalse x
 define f = omega typetofalse
-
-cat inconsistent.proof | dune exec ./prover.exevv 
